@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export const getAllProductCategories = async () => {
   try {
     let response = await fetch("http://localhost:8080/category", {
-      cache: "no-store",
+      cache: "default",
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -14,6 +14,7 @@ export const getAllProductCategories = async () => {
 
     let data = await response.json();
     return data;
+
 
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
@@ -56,12 +57,11 @@ export const getAllProducts = async () => {
     });
 
     const data = await response.json();
-
+    
     if (data.status === 403) {
       // Instead of redirecting, return a specific error or status code
       return { error: 'Unauthorized' };
     }
-
     return data;
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
@@ -75,7 +75,7 @@ export const getFilteredProducts = async (queryString: any) => {
     const baseUrl = "http://localhost:8080/products";
 
     const url = `${baseUrl}?${queryString}`;
-    console.log("URL", url);
+    // console.log("URL", url);
     
 
     // Define headers
@@ -89,11 +89,11 @@ export const getFilteredProducts = async (queryString: any) => {
       method: "GET",
       headers
     });
-
     let data = await response.json(); // Assuming the response is in JSON format
-    console.log("data====================================", data);
+    console.log("filter method asdfasdf" + data);
+    
     return data;
-  } catch (error) {
-
+  } catch (error : any) {
+    
   }
 }

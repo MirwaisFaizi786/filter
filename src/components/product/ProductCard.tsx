@@ -36,14 +36,14 @@ const ProductCard = React.memo(({ product }: { product: ProductType }) => {
 
   return (
     <motion.div
-      className="group relative"
+      className="group relative "
       variants={cardVariants}
       initial="initial"
       animate="animate"
       style={{ willChange: "width, height" }} // Hint to browser for optimization
     >
       <motion.div
-        className="aspect-square w-full overflow-hidden rounded-md bg-gray-200 lg:h-80 lg:aspect-none group-hover:opacity-75"
+        className="aspect-square w-full overflow-hidden rounded-md bg-gray-200 lg:h-96 lg:aspect-none group-hover:opacity-75"
         variants={imageVariants}
         initial="initial"
         animate="animate"

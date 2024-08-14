@@ -9,6 +9,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import { FilterState } from "../product/ProductFilter";
 
+
 type SortByDropdownMenuProps = {
   setFilter: React.Dispatch<React.SetStateAction<FilterState>>;
   filter: FilterState;
@@ -35,7 +36,10 @@ function SortByDropdownMenu({setFilter,filter, sortOptions}: SortByDropdownMenuP
                 return (
                   <DropdownMenuItem key={sortBy.value}>
                   <button
-                    onClick={() => setFilter({ ...filter, sort: sortBy })}
+                    onClick={() =>{
+                      setFilter({ ...filter, sort: sortBy })
+                     
+                    }}
                     className={cn("text-left w-full block  text-sm  py-2 rounded", {
                       "text-gray-900 bg-gray-100": filter.sort.value === sortBy.value,
                       "text-gray-500": filter.sort.value !== sortBy.value,

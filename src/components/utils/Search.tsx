@@ -13,7 +13,6 @@ function Search() {
         const params = new URLSearchParams(searchParams.toString());
         if (event.target.value ){
             params.set("search", event.target.value.trim());
-            params.set("page", "1");
         }else{
             params.delete("search");
 
