@@ -1,5 +1,6 @@
 
 
+import { url } from "inspector";
 import { z } from "zod";
 
 // products {
@@ -118,6 +119,11 @@ import { z } from "zod";
 //       }
 //     ]
 //   }
+export const imageSchema = z.object({
+    id: z.number(),
+    url: z.string(),
+    banner : z.boolean(),
+})
 
 
 export const productSchema = z.object({
@@ -138,6 +144,7 @@ export const productSchema = z.object({
         id: z.number(),
         name: z.string(),
     }),
+    productImages: z.array(imageSchema),
 });
 
 export const productFilterSchema = z.object({
@@ -148,6 +155,10 @@ export const productFilterSchema = z.object({
     productList: z.array(productSchema),
 });
 
+
+
 export type ProductFilterType = z.infer<typeof productFilterSchema>;
 
 export type ProductType = z.infer<typeof productSchema>;
+
+export type ImageType = z.infer<typeof imageSchema>;

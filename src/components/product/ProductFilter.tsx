@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import PriceAccordionItem from "./PriceAccordionItem";
 import EmptyFilter from "./EmptyFilter";
+import Link from "next/link";
+import Sidebar from "../sidebar/Sidebar";
 
 const SORTBY = [
   { name: "All", value: "all" },
@@ -47,17 +49,18 @@ export type FilterState = {
   category: CategoryType;
   sort: { name: string; value: string };
   priceRange: [number, number];
-
 };
 
 export default function ProductFilter({
   categories,
   brands,
   products,
-  getFilterProducts
-
+  getFilterProducts,
 }: ProductFilterProps) {
-  const [productList, setProductList] = useState<ProductFilterType>(products);
+  const [productList, setProductList] = useState<ProductFilterType | undefined>(
+    products
+  );
+  const [loading, setLoading] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [filter, setFilter] = useState<FilterState>({
     brands: [],
@@ -98,28 +101,32 @@ export default function ProductFilter({
   }, [filter, searchParams]);
 
   useEffect(() => {
+    if(products?.productList) {
+      setLoading(true);
+    }
     const query = buildQuery();
     async function filterProducts() {
       try {
         const filteredProducts = await getFilterProducts(query);
-        console.log("filter method useEffect" + filteredProducts);
+        console.log("filteredProducts", filteredProducts);
         setProductList(filteredProducts);
       } catch (err) {
         console.error("Error fetching filtered products", err);
       }
     }
-    
+
     if (isFirstRender.current) {
       isFirstRender.current = false; // Mark that the first render has occurred
-    } else  {
-     query ? filterProducts() : setProductList(products);
+    } else {
+      query ? filterProducts() : setProductList(products);
     }
-    
   }, [filter, buildQuery, products, getFilterProducts]);
 
   return (
     <main className="mx-auto  max-w-7xl  px-4 sm:px-6 lg:px-8 relative">
+      <Sidebar />
       <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24 sticky top-0 z-10 bg-white">
+        
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           Hello World
         </h1>
@@ -159,7 +166,7 @@ export default function ProductFilter({
                 </ul>
 
                 {/* Brand Filter */}
-                <Accordion type="multiple" className="w-full animate-none">
+                <Accordion  type="multiple" className="w-full animate-none">
                   <BrandAccordionItem
                     title="Brands"
                     items={brands}
@@ -190,19 +197,25 @@ export default function ProductFilter({
               animate="visible"
               exit="exit"
             >
-              { productList?.productList && productList?.productList.length === 0 ? (<EmptyFilter /> ) : 
-                productList?.productList ? productList?.productList?.map((product: ProductType) => (
+              {!loading 
+                ? new Array(9)
+                    .fill(null)
+                    .map((_, index) => <ProductCardSkeleton key={index} />)
+                : productList && productList?.productList?.length > 0
+                ? productList?.productList?.map((product: ProductType) => (
                     <motion.li
                       key={product.productId}
                       variants={childVariants}
                       layout
                     >
+                    <Link href={`/product/${product.productId}`}>
                       <ProductCard key={product.productId} product={product} />
+                    </Link>
                     </motion.li>
                   ))
-                : new Array(9)
-                    .fill(null)
-                    .map((_, index) => <ProductCardSkeleton key={index} />)}
+                : 
+                   <EmptyFilter />
+              }
             </motion.ul>
           </AnimatePresence>
         </div>

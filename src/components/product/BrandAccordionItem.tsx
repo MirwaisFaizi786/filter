@@ -26,7 +26,7 @@ function BrandAccordionItem({
   return (
     <>
       <AccordionItem value={title}  >
-        <AccordionTrigger className="flex items-center w-full justify-between text-sm py-3 text-gray-400 hover:text-gray-500">
+        <AccordionTrigger  className="flex items-center w-full justify-between text-sm py-3 text-gray-400 hover:text-gray-500">
           <span className="text-gray-900 font-medium">{title}</span>
         </AccordionTrigger>
         <AccordionContent>

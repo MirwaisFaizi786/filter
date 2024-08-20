@@ -8,6 +8,9 @@ import { ProductFilterType } from "@/schema/product/productSchema";
 import { CategoryType } from "@/schema/category/categorySchema";
 import { BrandType } from "@/schema/Brand/brandSchema";
 import ProductFilter from "@/components/product/ProductFilter";
+import { Suspense } from "react";
+import EmptyFilter from "@/components/product/EmptyFilter";
+import ProductCardSkeleton from "@/components/skeleton/ProductCartSkeleton";
 
 export default async function Home() {
   const categories: CategoryType[] = await getAllProductCategories();
@@ -19,10 +22,10 @@ export default async function Home() {
     "use server";
     try {
       const filteredProducts = await getFilteredProducts(query);
-      console.log(filteredProducts);
+      console.log("filteredProducts from server action ", filteredProducts);
       return filteredProducts;
-    } catch (err) {
-      console.error("Error fetching filtered products", err);
+    } catch (err: any) {
+      return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
   };
   
@@ -35,6 +38,7 @@ export default async function Home() {
           <Link href="/login">SignIn</Link>
         </button>
       </div> */}
+  
       <ProductFilter
         categories={categories}
         brands={brands}
