@@ -11,7 +11,7 @@ export const getAllProductCategories = async () => {
 // Get all product brands
 export const getAllProductBrands = async () => {
   const url = "http://localhost:8080/brand";
-  return fetchData(url, { cache: "no-store" });
+  return fetchData(url);
 };
 
 // Get all products

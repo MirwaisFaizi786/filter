@@ -17,6 +17,7 @@ type SortByDropdownMenuProps = {
 };
 
 function SortByDropdownMenu({setFilter,filter, sortOptions}: SortByDropdownMenuProps) {
+  
 
   return (
     <div className="flex items-center">

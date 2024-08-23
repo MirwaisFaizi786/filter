@@ -8,9 +8,6 @@ import { ProductFilterType } from "@/schema/product/productSchema";
 import { CategoryType } from "@/schema/category/categorySchema";
 import { BrandType } from "@/schema/Brand/brandSchema";
 import ProductFilter from "@/components/product/ProductFilter";
-import { Suspense } from "react";
-import EmptyFilter from "@/components/product/EmptyFilter";
-import ProductCardSkeleton from "@/components/skeleton/ProductCartSkeleton";
 
 export default async function Home() {
   const categories: CategoryType[] = await getAllProductCategories();

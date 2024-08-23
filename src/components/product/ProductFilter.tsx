@@ -12,14 +12,12 @@ import BrandAccordionItem from "./BrandAccordionItem";
 import SortByDropdownMenu from "../category/SortByDropdownMenu";
 import Search from "../utils/Search";
 import { useSearchParams } from "next/navigation";
-import { getFilteredProducts } from "@/actions/product/productAction";
 import { Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import PriceAccordionItem from "./PriceAccordionItem";
 import EmptyFilter from "./EmptyFilter";
 import Link from "next/link";
-import Sidebar from "../sidebar/Sidebar";
 
 const SORTBY = [
   { name: "All", value: "all" },
@@ -57,6 +55,7 @@ export default function ProductFilter({
   products,
   getFilterProducts,
 }: ProductFilterProps) {
+  
   const [productList, setProductList] = useState<ProductFilterType | undefined>(
     products
   );
@@ -72,59 +71,59 @@ export default function ProductFilter({
 
   const searchParams = useSearchParams();
 
-  const buildQuery = useCallback(() => {
-    const filteredQuery: Record<string, string> = {
-      ...(searchParams.get("search")
-        ? { search: searchParams.get("search")! }
-        : {}),
-      ...(filter.sort.value !== "all" ? { sortBy: filter.sort.value } : {}),
-      ...(filter.brands.length > 0
-        ? {
-            brands: filter.brands
-              .map((brand) => brand.brandId.toString())
-              .join(","),
-          }
-        : {}),
-      ...(filter.category.categoryId
-        ? { categories: filter.category.categoryId.toString() }
-        : {}),
+  // const buildQuery = useCallback(() => {
+  //   const filteredQuery: Record<string, string> = {
+  //     ...(searchParams.get("search")
+  //       ? { search: searchParams.get("search")! }
+  //       : {}),
+  //     ...(filter.sort.value !== "all" ? { sortBy: filter.sort.value } : {}),
+  //     ...(filter.brands.length > 0
+  //       ? {
+  //           brands: filter.brands
+  //             .map((brand) => brand.brandId.toString())
+  //             .join(","),
+  //         }
+  //       : {}),
+  //     ...(filter.category.categoryId
+  //       ? { categories: filter.category.categoryId.toString() }
+  //       : {}),
 
-      ...(filter.priceRange[0] >= 0 && filter.priceRange[1] > 0
-        ? { minPrice: filter.priceRange[0].toString() }
-        : {}),
-      ...(filter.priceRange[1] > filter.priceRange[0]
-        ? { maxPrice: filter.priceRange[1].toString() }
-        : {}),
-    };
-    const url = new URLSearchParams(filteredQuery).toString();
-    return url;
-  }, [filter, searchParams]);
+  //     ...(filter.priceRange[0] >= 0 && filter.priceRange[1] > 0
+  //       ? { minPrice: filter.priceRange[0].toString() }
+  //       : {}),
+  //     ...(filter.priceRange[1] > filter.priceRange[0]
+  //       ? { maxPrice: filter.priceRange[1].toString() }
+  //       : {}),
+  //   };
+  //   const url = new URLSearchParams(filteredQuery).toString();
+  //   return url;
+  // }, [filter, searchParams]);
 
-  useEffect(() => {
-    if(products?.productList) {
-      setLoading(true);
-    }
-    const query = buildQuery();
-    async function filterProducts() {
-      try {
-        const filteredProducts = await getFilterProducts(query);
-        console.log("filteredProducts", filteredProducts);
-        setProductList(filteredProducts);
-      } catch (err) {
-        console.error("Error fetching filtered products", err);
-      }
-    }
+  // useEffect(() => {
+  //   if(products?.productList) {
+  //     setLoading(true);
+  //   }
+  //   const query = buildQuery();
+  //   async function filterProducts() {
+  //     try {
+  //       const filteredProducts = await getFilterProducts(query);
+  //       console.log("filteredProducts", filteredProducts);
+  //       setProductList(filteredProducts);
+  //     } catch (err) {
+  //       console.error("Error fetching filtered products", err);
+  //     }
+  //   }
 
-    if (isFirstRender.current) {
-      isFirstRender.current = false; // Mark that the first render has occurred
-    } else {
-      query ? filterProducts() : setProductList(products);
-    }
-  }, [filter, buildQuery, products, getFilterProducts]);
+  //   if (isFirstRender.current) {
+  //     isFirstRender.current = false; // Mark that the first render has occurred
+  //   } else {
+  //     query ? filterProducts() : setProductList(products);
+  //   }
+  // }, [filter, buildQuery, products, getFilterProducts]);
 
   return (
-    <main className="mx-auto  max-w-7xl  px-4 sm:px-6 lg:px-8 relative">
-      <Sidebar />
+    <main className="mx-auto  max-w-full  px-4 sm:px-6 lg:px-8 relative">
+   
       <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24 sticky top-0 z-10 bg-white">
         
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">

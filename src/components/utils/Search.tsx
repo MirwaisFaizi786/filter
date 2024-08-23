@@ -1,3 +1,4 @@
+"use client"
 import { SearchIcon } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
