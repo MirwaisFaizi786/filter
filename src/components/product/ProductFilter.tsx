@@ -4,20 +4,19 @@ import { ProductFilterType, ProductType } from "@/schema/product/productSchema";
 import ProductCard from "@/components/product/ProductCard";
 import ProductCardSkeleton from "@/components/skeleton/ProductCartSkeleton";
 import { CategoryType } from "@/schema/category/categorySchema";
-import CategoryFilterList from "@/components/category/CategoryFilterList";
 import { Accordion } from "@/components/ui/accordion";
 import { BrandType } from "@/schema/Brand/brandSchema";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useState } from "react";
 import BrandAccordionItem from "./BrandAccordionItem";
 import SortByDropdownMenu from "../category/SortByDropdownMenu";
 import Search from "../utils/Search";
-import { useSearchParams } from "next/navigation";
 import { Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import PriceAccordionItem from "./PriceAccordionItem";
 import EmptyFilter from "./EmptyFilter";
 import Link from "next/link";
+import CategoryFilterList from "../category/CategoryFilterList";
 
 const SORTBY = [
   { name: "All", value: "all" },
@@ -38,7 +37,6 @@ type ProductFilterProps = {
   categories: CategoryType[];
   brands: BrandType[];
   products: ProductFilterType;
-  getFilterProducts: (query: any) => Promise<any>;
 };
 
 // Filter State type
@@ -53,80 +51,16 @@ export default function ProductFilter({
   categories,
   brands,
   products,
-  getFilterProducts,
 }: ProductFilterProps) {
-  
-  const [productList, setProductList] = useState<ProductFilterType | undefined>(
-    products
-  );
-  const [loading, setLoading] = useState(false);
+
+  console.log("products", products);
+
   const [showFilter, setShowFilter] = useState(false);
-  const [filter, setFilter] = useState<FilterState>({
-    brands: [],
-    category: {} as CategoryType,
-    sort: SORTBY[0],
-    priceRange: [0, 0],
-  });
-  const isFirstRender = useRef(true);
-
-  const searchParams = useSearchParams();
-
-  // const buildQuery = useCallback(() => {
-  //   const filteredQuery: Record<string, string> = {
-  //     ...(searchParams.get("search")
-  //       ? { search: searchParams.get("search")! }
-  //       : {}),
-  //     ...(filter.sort.value !== "all" ? { sortBy: filter.sort.value } : {}),
-  //     ...(filter.brands.length > 0
-  //       ? {
-  //           brands: filter.brands
-  //             .map((brand) => brand.brandId.toString())
-  //             .join(","),
-  //         }
-  //       : {}),
-  //     ...(filter.category.categoryId
-  //       ? { categories: filter.category.categoryId.toString() }
-  //       : {}),
-
-  //     ...(filter.priceRange[0] >= 0 && filter.priceRange[1] > 0
-  //       ? { minPrice: filter.priceRange[0].toString() }
-  //       : {}),
-  //     ...(filter.priceRange[1] > filter.priceRange[0]
-  //       ? { maxPrice: filter.priceRange[1].toString() }
-  //       : {}),
-  //   };
-  //   const url = new URLSearchParams(filteredQuery).toString();
-  //   return url;
-  // }, [filter, searchParams]);
-
-  // useEffect(() => {
-  //   if(products?.productList) {
-  //     setLoading(true);
-  //   }
-  //   const query = buildQuery();
-  //   async function filterProducts() {
-  //     try {
-  //       const filteredProducts = await getFilterProducts(query);
-  //       console.log("filteredProducts", filteredProducts);
-  //       setProductList(filteredProducts);
-  //     } catch (err) {
-  //       console.error("Error fetching filtered products", err);
-  //     }
-  //   }
-
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false; // Mark that the first render has occurred
-  //   } else {
-  //     query ? filterProducts() : setProductList(products);
-  //   }
-  // }, [filter, buildQuery, products, getFilterProducts]);
 
   return (
-    <main className="mx-auto  max-w-full  px-4 sm:px-6 lg:px-8 relative">
-   
-      <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24 sticky top-0 z-10 bg-white">
-        
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+    <div className="mx-auto max-w-7xl  px-4 sm:px-6 lg:px-8 relative">
+      <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-8 sticky top-0 z-10 bg-white">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
           Hello World
         </h1>
 
@@ -142,8 +76,6 @@ export default function ProductFilter({
             <Filter className="ml-2 h-4 w-4" />
           </button>
           <SortByDropdownMenu
-            setFilter={setFilter}
-            filter={filter}
             sortOptions={SORTBY}
           />
         </div>
@@ -155,31 +87,20 @@ export default function ProductFilter({
           {showFilter && (
             <div className="hidden lg:block ">
               {/* Category Filter */}
-              <div className="sticky top-48 scroll-mt-24">
+              <div className="sticky top-32  max-h-[calc(100vh-10rem)] overflow-y-auto overflow-x-auto">
                 <ul className="space-y-4 text-gray-900 text-sm border-b border-gray-200 pb-6 font-medium">
                   <CategoryFilterList
                     categories={categories}
-                    setFilter={setFilter}
-                    filter={filter}
+                   
                   />
                 </ul>
 
                 {/* Brand Filter */}
-                <Accordion  type="multiple" className="w-full animate-none">
-                  <BrandAccordionItem
-                    title="Brands"
-                    items={brands}
-                    setFilter={setFilter}
-                    filter={filter}
-                  />
+                <Accordion type="multiple" className="w-full animate-none">
+                  <BrandAccordionItem title="Brands" items={brands} />
                   {/* Price Filter */}
 
-                  <PriceAccordionItem
-                    title="Price"
-                    items={PRICELIST}
-                    setFilter={setFilter}
-                    filter={filter}
-                  />
+                  <PriceAccordionItem title="Price" items={PRICELIST} />
                 </Accordion>
               </div>
             </div>
@@ -196,30 +117,39 @@ export default function ProductFilter({
               animate="visible"
               exit="exit"
             >
-              {!loading 
-                ? new Array(9)
-                    .fill(null)
-                    .map((_, index) => <ProductCardSkeleton key={index} />)
-                : productList && productList?.productList?.length > 0
-                ? productList?.productList?.map((product: ProductType) => (
+              <Suspense
+                fallback={
+                  <div>
+                    {new Array(9).fill(null).map((_, index) => (
+                      <ProductCardSkeleton key={index} />
+                    ))}
+                  </div>
+                }
+              >
+                {products && products?.productList?.length > 0 ? (
+                  products?.productList?.map((product: ProductType) => (
                     <motion.li
                       key={product.productId}
                       variants={childVariants}
                       layout
                     >
-                    <Link href={`/product/${product.productId}`}>
-                      <ProductCard key={product.productId} product={product} />
-                    </Link>
+                      <Link href={`/product/${product.productId}`}>
+                        <ProductCard
+                          key={product.productId}
+                          product={product}
+                        />
+                      </Link>
                     </motion.li>
                   ))
-                : 
-                   <EmptyFilter />
-              }
+                ) : (
+                  <EmptyFilter />
+                )}
+              </Suspense>
             </motion.ul>
           </AnimatePresence>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

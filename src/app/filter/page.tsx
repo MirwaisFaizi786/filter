@@ -1,14 +1,10 @@
 import ProductCard from "@/components/product/ProductCard";
-import ProductCardSkeleton from "@/components/skeleton/ProductCartSkeleton";
-
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Search from "@/components/utils/Search";
 import {
   getAllProductBrands,
   getAllProductCategories,
-  getAllProducts,
   getFilteredProducts,
 } from "@/actions/product/productAction";
 import { CategoryType } from "@/schema/category/categorySchema";
@@ -29,12 +25,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import BrandAccordionItem from "@/components/product/BrandAccordionItem";
 import BrandFilter from "./BrandFilter";
 import PriceFilter from "./PriceFilter";
 import PriceMinMax from "./PriceMinMax";
-import { Suspense } from "react";
-import Loading from "../loading";
+
 
 const SORTBY = [
   { name: "All", value: "all" },
@@ -53,11 +47,9 @@ const PRICELIST = [
 ];
 
 type Price = { price: string; min: number; max: number };
-export default async function ProductFilter({
-  searchParams,
-}: {
-  searchParams: any;
-}) {
+
+export default async function ProductFilter({searchParams}: {searchParams: any}) {
+
   const query = new URLSearchParams(searchParams);
 
   const categories: CategoryType[] = await getAllProductCategories();
@@ -67,15 +59,17 @@ export default async function ProductFilter({
   console.log("query", query);
 
   return (
-    <main className="mx-auto  max-w-7xl  px-4 sm:px-6 lg:px-8 relative">
+    <main className="mx-auto  max-w-screen-2xl  px-4 sm:px-6 lg:px-8 relative">
       <div className="flex items-baseline justify-between border-b border-gray-200 py-6 sticky -top-2 z-10 bg-white">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           Hello World
         </h1>
-
+  {/* ********************* Search * ********************** */}
         <Search />
+
         <div className="items-center space-x-8 hidden lg:flex ">
           <div className="flex items-center">
+  {/* ********************* Sort By * ********************** */}
             <DropdownMenu>
               <DropdownMenuTrigger className="group inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900">
                 <span>
@@ -104,11 +98,10 @@ export default async function ProductFilter({
       </div>
 
       <section className="pt-6 pb-24 ">
-        <div className="grid grid-cols-1 gap-y-10 gap-x-6  lg:grid-cols-4">
-          {/* Left Filter Section */}
-          <div className="hidden lg:block max-h-[calc(100vh-10rem)] overflow-y-auto overflow-x-auto pr-4 sticky top-24 ">
-            {/* Category Filter */}
-
+        <div className="grid grid-cols-1 gap-y-10 gap-x-6  lg:grid-cols-[.5fr,1fr,1fr,1fr]">
+        {/* Left Filter Section */}
+          <div className="hidden lg:block max-h-[calc(100vh-10rem)] overflow-y-visible overflow-x-auto pr-4 sticky top-24">
+  {/* ********************* Category * ********************** */}
             <ul className="space-y-4 text-gray-900 text-sm border-b border-gray-200 pb-6 font-medium">
               {categories.length &&
                 categories?.map((category: CategoryType) => (
@@ -119,7 +112,7 @@ export default async function ProductFilter({
                 ))}
             </ul>
 
-            {/* Brand Filter */}
+  {/* ********************* Brand * ********************** */}
             <Accordion type="multiple" className="w-full animate-none">
               <AccordionItem value="brand">
                 <AccordionTrigger className="flex items-center w-full justify-between text-sm py-3 text-gray-400 hover:text-gray-500">
@@ -135,7 +128,7 @@ export default async function ProductFilter({
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Price Filter */}
+  {/* ********************* Price * ********************** */}
 
               <AccordionItem value="price">
                 <AccordionTrigger className="flex items-center w-full justify-between text-sm py-3 text-gray-400 hover:text-gray-500">
@@ -153,15 +146,11 @@ export default async function ProductFilter({
             </Accordion>
           </div>
 
-          {/* Products Section */}
-
+  {/* ********************* Products Cards * ********************** */}
           <ul
             className={cn(
               "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 lg:col-span-3"
-              // { "lg:col-span-4": !showFilter }
-            )}
-          >
-           
+            )}>
               {products && products?.productList?.length > 0 ? (
                 products?.productList?.map((product: ProductType) => (
                   <li key={product.productId}>

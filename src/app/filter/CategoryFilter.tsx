@@ -22,7 +22,7 @@ function CategoryFilter({ category }: { category: CategoryType }) {
     router.replace(`${pathName}?${params.toString()}`);
   };
   return (
-    <li key={category.categoryId} className="pb-4">
+    <li key={category.categoryId} className="">
       <button
         onClick={() => handleItemClick(category)}
         className={cn("text-gray-500 hover:text-gray-600", {

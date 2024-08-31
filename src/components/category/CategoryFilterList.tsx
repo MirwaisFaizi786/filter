@@ -1,31 +1,29 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { BrandType } from "@/schema/Brand/brandSchema";
 import { CategoryType } from "@/schema/category/categorySchema";
 import { FilterState } from "../product/ProductFilter";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 
 
 
 type CategoryFilterListProps = {
   categories: CategoryType[];
-  filter: FilterState;
-  setFilter: React.Dispatch<React.SetStateAction<FilterState>>;
 };
 
 
 function CategoryFilterList({
-  categories,
-  filter,
-  setFilter,
-
-}: CategoryFilterListProps) {
+  categories}: CategoryFilterListProps) {
   
+
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const router = useRouter();
+
+  const params = new URLSearchParams(searchParams.toString());
   const handleItemClick = (category: CategoryType) => {
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      category: category,
-    }));
+    params.set("categories", category.categoryId.toString());
+    router.replace(`${pathName}?${params.toString()}`);
   };
 
   
@@ -36,8 +34,8 @@ function CategoryFilterList({
           <button
             onClick={() => handleItemClick(category)}
             className={cn("text-gray-500 hover:text-gray-600", {
-              "text-gray-900 underline": filter.category.categoryId === category.categoryId,
-              "text-gray-500": filter.category.categoryId !== category.categoryId,
+              "text-gray-900 underline": Number(params.get("categories")) === category.categoryId,
+              "text-gray-500": Number(params.get("categories")) !== category.categoryId,
             })}
           >
             {category.name}

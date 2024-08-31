@@ -8,21 +8,67 @@ import {
 import { BrandType } from "@/schema/Brand/brandSchema";
 import { CategoryType } from "@/schema/category/categorySchema";
 import { FilterState } from "./ProductFilter";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 
 interface AccordionProps {
   title: string;
   items: BrandType[];
-  filter: FilterState;
-  setFilter: React.Dispatch<React.SetStateAction<FilterState>>;
 }
 
 function BrandAccordionItem({
   title,
-  items,
-  filter,
-  setFilter,
+  items
 }: AccordionProps) {
+
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const router = useRouter();
+
+  const params = new URLSearchParams(searchParams.toString());
+
+  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>, item: BrandType) => {
+    // Get current brands from the URL and split them into an array
+    const brandsParam = params.get("brands");
+    const brandsArray = brandsParam ? brandsParam.split(",").map(Number) : [];
+
+    if (event.target.checked) {
+      // Add the new brand to the array if it's checked and not already present
+      if (!brandsArray.includes(item.brandId)) {
+        brandsArray.push(item.brandId);
+      }
+    } else {
+      // Remove the brand from the array if it's unchecked
+      const index = brandsArray.indexOf(item.brandId);
+      if (index !== -1) {
+        brandsArray.splice(index, 1);
+      }
+    }
+
+    // If the array is empty, remove the "brands" parameter from the URL, otherwise update it
+    if (brandsArray.length > 0) {
+      params.set("brands", brandsArray.join(","));
+    } else {
+      params.delete("brands");
+    }
+
+    // Replace the URL with the updated query parameters
+    router.replace(`${pathName}?${params.toString()}`);
+
+
+  };
+
+  // Determine if the brand is checked
+  const isChecked = (item: BrandType) => {
+    const brandsParam = params.get("brands");
+    const brandsArray = brandsParam ? brandsParam.split(",") : [];
+    const isChecked = brandsArray.includes(String(item.brandId));
+    return isChecked;
+  }
+ 
+
+
+
   return (
     <>
       <AccordionItem value={title}  >
@@ -35,15 +81,8 @@ function BrandAccordionItem({
               <li key={item.brandId} className="flex items-center">
                 <input
                   type="checkbox"
-                  onChange={() =>
-                    setFilter((prev) => ({
-                      ...prev,
-                      brands: prev.brands.find((brand) => brand.brandId === item.brandId)
-                        ? prev.brands.filter((brand) => brand.brandId !== item.brandId)
-                        : [...prev.brands, item],
-                    }))
-                  }
-                  checked={filter.brands.some((brand) => brand.brandId === item.brandId)}
+                  onChange={ (event) => onChangeHandler(event, item)}
+                  checked={isChecked(item)}
                   id={item.name}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />

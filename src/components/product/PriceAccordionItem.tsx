@@ -8,41 +8,63 @@ import {
 import { FilterState } from "./ProductFilter";
 import { useDebouncedCallback } from "use-debounce";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+
 type Price = { price: string; min: number; max: number };
 
 interface AccordionProps {
   title: string;
   items: { price: string; min: number; max: number }[];
-  filter: FilterState;
-  setFilter: React.Dispatch<React.SetStateAction<FilterState>>;
 }
 
 function PriceAccordionItem({
   title,
   items,
-  filter,
-  setFilter,
 }: AccordionProps) {
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const router = useRouter();
 
-  const onMinChangeHandler = useDebouncedCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter((prev) => ({
-      ...prev,
-      priceRange: [
-        parseInt(e.target.value),
-        prev.priceRange[1],
-      ],
-    })) 
-  }, 300)
+  const params = new URLSearchParams(searchParams.toString());
 
-  const onMaxChangeHandler = useDebouncedCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter((prev) => ({
-      ...prev,
-      priceRange: [
-        prev.priceRange[0],
-        parseInt(e.target.value),
-      ],
-    })) 
-  }, 300)
+  const onMinChangeHandler = useDebouncedCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      params.set("minPrice", e.target.value);
+      router.replace(`${pathName}?${params.toString()}`);
+    },
+    300
+  );
+
+  const onMaxChangeHandler = useDebouncedCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      params.set("maxPrice", e.target.value);
+      router.replace(`${pathName}?${params.toString()}`);
+    },
+    300
+  );
+
+  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>, price: Price) => {
+    const newFilter = { ...price }; // Clone the passed in price object
+
+    if (event.target.checked) {
+      newFilter.min = price.min;
+      newFilter.max = price.max;
+      params.set("minPrice", newFilter.min.toString());
+      params.set("maxPrice", newFilter.max.toString());
+    } else {
+      // Set to 0 when unchecked
+      newFilter.min = 0;
+      newFilter.max = 0;
+
+      // Remove from the URL if values are 0
+      params.delete("minPrice");
+      params.delete("maxPrice");
+    }
+
+    // Replace the URL with the updated parameters
+    router.replace(`${pathName}?${params.toString()}`);
+  };
 
   return (
     <>
@@ -57,19 +79,10 @@ function PriceAccordionItem({
                 <div>
                   <input
                     type="checkbox"
-                    onChange={() =>
-                      setFilter((prev) => ({
-                        ...prev,
-                        priceRange:
-                          prev.priceRange[0] === item.min &&
-                          prev.priceRange[1] === item.max
-                            ? [0, 0]
-                            : [item.min, item.max],
-                      }))
-                    }
+                    onChange={(e) => onChangeHandler(e, item)}
                     checked={
-                      filter.priceRange[0] === item.min &&
-                      filter.priceRange[1] === item.max
+                      params.get("minPrice") === item.min.toString() &&
+                      params.get("maxPrice") === item.max.toString()
                     }
                     id={item.price}
                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
